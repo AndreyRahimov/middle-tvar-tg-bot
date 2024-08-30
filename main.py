@@ -5,6 +5,9 @@ from aiogram import Bot, Dispatcher
 from config_data.config import Config, load_config
 from handlers.other import other_router
 from handlers.user import user_router
+from lexicon.lexicon_en import LEXICON_EN
+from lexicon.lexicon_ru import LEXICON_RU
+from middlewares.i18n import TranslatorMiddleware
 from middlewares.inner import (
     FirstInnerMiddleware,
     SecondInnerMiddleware,
@@ -26,6 +29,12 @@ logging.basicConfig(
 # Инициализируем логгер модуля
 logger = logging.getLogger(__name__)
 
+translations = {
+    "default": "ru",
+    "en": LEXICON_EN,
+    "ru": LEXICON_RU,
+}
+
 
 # Функция конфигурирования и запуска бота
 async def main() -> None:
@@ -42,6 +51,7 @@ async def main() -> None:
     dp.include_router(other_router)
 
     # Здесь будем регистрировать миддлвари
+    dp.update.middleware(TranslatorMiddleware())
     dp.update.outer_middleware(FirstOuterMiddleware())
     user_router.callback_query.outer_middleware(SecondOuterMiddleware())
     other_router.message.outer_middleware(ThirdOuterMiddleware())
@@ -50,7 +60,7 @@ async def main() -> None:
     other_router.message.middleware(ThirdInnerMiddleware())
 
     # Запускаем polling
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, _translations=translations)
 
 
 asyncio.run(main())

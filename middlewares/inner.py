@@ -44,11 +44,11 @@ class SecondInnerMiddleware(BaseMiddleware):
             event.__class__.__name__,
         )
 
-        # Удалили строку `result = await handler(event, data)`
+        result = await handler(event, data)
 
         logger.debug("Выходим из миддлвари  %s", __class__.__name__)
 
-        return  # Убрали `result`
+        return result
 
 
 class ThirdInnerMiddleware(BaseMiddleware):
